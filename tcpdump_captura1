@@ -1,0 +1,40 @@
+10:37:20.173199 IP claudia-VMware-Virtual-Platform.49042 > _gateway.domain: 181+ [1au] A? incoming.telemetry.mozilla.org. (59)
+10:37:20.174051 IP claudia-VMware-Virtual-Platform.59753 > _gateway.domain: 27179+ [1au] AAAA? incoming.telemetry.mozilla.org. (59)
+10:37:20.178533 IP _gateway.domain > claudia-VMware-Virtual-Platform.49042: 181 3/0/1 CNAME telemetry-incoming.r53-2.services.mozilla.com., CNAME prod.ingestion-edge.prod.dataops.mozgcp.net., A 34.120.208.123 (191)
+10:37:20.179637 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [S], seq 3936062499, win 64240, options [mss 1460,sackOK,TS val 1218173021 ecr 0,nop,wscale 7], length 0
+10:37:20.194386 IP claudia-VMware-Virtual-Platform.51239 > _gateway.domain: 52992+ [1au] A? www.youtube.com. (44)
+10:37:20.197798 IP claudia-VMware-Virtual-Platform.54150 > _gateway.domain: 61642+ [1au] AAAA? www.youtube.com. (44)
+10:37:20.200138 IP _gateway.domain > claudia-VMware-Virtual-Platform.51239: 52992 17/0/1 CNAME youtube-ui.l.google.com., A 142.250.185.206, A 142.250.184.206, A 172.217.16.142, A 142.250.181.238, A 142.250.186.142, A 142.250.184.238, A 142.250.185.142, A 172.217.23.110, A 142.250.185.78, A 142.250.186.110, A 216.58.212.174, A 142.250.186.78, A 142.250.185.174, A 142.250.185.238, A 142.250.185.110, A 142.250.74.206 (337)
+10:37:20.201858 IP _gateway.domain > claudia-VMware-Virtual-Platform.54150: 61642 5/0/1 CNAME youtube-ui.l.google.com., AAAA 2a00:1450:4001:811::200e, AAAA 2a00:1450:4001:80f::200e, AAAA 2a00:1450:4001:810::200e, AAAA 2a00:1450:4001:80e::200e (190)
+10:37:20.208417 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [S.], seq 1095371601, ack 3936062500, win 64240, options [mss 1460], length 0
+10:37:20.208485 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [.], ack 1, win 64240, length 0
+10:37:20.211830 IP _gateway.domain > claudia-VMware-Virtual-Platform.59753: 27179 2/1/1 CNAME telemetry-incoming.r53-2.services.mozilla.com., CNAME prod.ingestion-edge.prod.dataops.mozgcp.net. (265)
+10:37:20.212148 IP claudia-VMware-Virtual-Platform.37827 > _gateway.domain: 4254+ [1au] AAAA? prod.ingestion-edge.prod.dataops.mozgcp.net. (72)
+10:37:20.215227 IP _gateway.domain > claudia-VMware-Virtual-Platform.37827: 4254 0/0/1 (72)
+10:37:20.218135 IP claudia-VMware-Virtual-Platform.33126 > fra16s52-in-f14.1e100.net.https: UDP, length 1357
+10:37:20.219064 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [P.], seq 1:518, ack 1, win 64240, length 517
+10:37:20.219311 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [.], ack 518, win 64240, length 0
+10:37:20.231442 IP claudia-VMware-Virtual-Platform.34026 > _gateway.domain: 10859+ [1au] A? fonts.gstatic.com. (46)
+10:37:20.231940 IP claudia-VMware-Virtual-Platform.55235 > _gateway.domain: 47332+ [1au] AAAA? fonts.gstatic.com. (46)
+10:37:20.234039 IP _gateway.domain > claudia-VMware-Virtual-Platform.34026: 10859 1/0/1 A 142.250.185.163 (62)
+10:37:20.235285 IP _gateway.domain > claudia-VMware-Virtual-Platform.55235: 47332 1/0/1 AAAA 2a00:1450:4001:80e::2003 (74)
+10:37:20.257451 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [P.], seq 1:157, ack 518, win 64240, length 156
+10:37:20.257567 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [.], ack 157, win 64084, length 0
+10:37:20.258677 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [P.], seq 518:569, ack 157, win 64084, length 51
+10:37:20.259076 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [.], ack 569, win 64240, length 0
+10:37:20.259773 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [P.], seq 569:746, ack 157, win 64084, length 177
+10:37:20.260046 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [.], ack 746, win 64240, length 0
+10:37:20.260308 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [P.], seq 746:1099, ack 157, win 64084, length 353
+10:37:20.260567 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [.], ack 1099, win 64240, length 0
+10:37:20.260868 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [P.], seq 1099:1550, ack 157, win 64084, length 451
+10:37:20.261121 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [.], ack 1550, win 64240, length 0
+10:37:20.288354 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [P.], seq 157:226, ack 1550, win 64240, length 69
+10:37:20.288619 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [P.], seq 1550:1588, ack 226, win 64015, length 38
+10:37:20.289151 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [.], ack 1588, win 64240, length 0
+10:37:20.296537 IP claudia-VMware-Virtual-Platform.44640 > fra16s52-in-f14.1e100.net.https: Flags [S], seq 2750413716, win 64240, options [mss 1460,sackOK,TS val 281233510 ecr 0,nop,wscale 7], length 0
+10:37:20.316174 IP 123.208.120.34.bc.googleusercontent.com.https > claudia-VMware-Virtual-Platform.47664: Flags [P.], seq 226:264, ack 1588, win 64240, length 38
+10:37:20.325905 IP fra16s52-in-f14.1e100.net.https > claudia-VMware-Virtual-Platform.44640: Flags [S.], seq 1983539702, ack 2750413717, win 64240, options [mss 1460], length 0
+10:37:20.325965 IP claudia-VMware-Virtual-Platform.44640 > fra16s52-in-f14.1e100.net.https: Flags [.], ack 1, win 64240, length 0
+10:37:20.331820 IP claudia-VMware-Virtual-Platform.44640 > fra16s52-in-f14.1e100.net.https: Flags [P.], seq 1:518, ack 1, win 64240, length 517
+10:37:20.332473 IP fra16s52-in-f14.1e100.net.https > claudia-VMware-Virtual-Platform.44640: Flags [.], ack 518, win 64240, length 0
+10:37:20.359007 IP claudia-VMware-Virtual-Platform.47664 > 123.208.120.34.bc.googleusercontent.com.https: Flags [.], ack 264, win 64015, length 0
