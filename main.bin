@@ -1,4 +1,73 @@
 #!/bin/bash
 
+traffic_stat()
+{
+	num_packets=`sudo tshark -r $1 | wc -l 2> /dev/null`
+	time=`sudo tshark -r $1 | tail -n 1 | tr -s " " | cut -f3 -d" " 2> /dev/null`
+	total_size=$(sudo tshark -r $1 -T fields -e frame.len 2> /dev/null | awk '{s+=$1} END {print s}')
+	echo "$total_size"
+	
+	vol_packets=$(echo "scale=2; $num_packets / $time" | bc -l)
+	echo "Packets/sec = $vol_packets"
+	
+	vol_bytes=$(echo "scale=2; $total_size / $time" | bc -l)
+	echo "Bytes/sec = $vol_bytes"
+	
+}
 
 
+if [[ $# -eq 0 ]]
+then
+	echo "IN LINE"
+else
+	echo "OUT OF LINE file: $1"
+	touch temp
+	PS3="Choose an option:"
+	select ITEM in "Statistics" "Alerts" "Exit"
+	do
+	case $REPLY in
+	1)
+		while true 
+		do
+		
+		read -p "Enter a filter: " filter
+		#echo "$filter"
+		if [[ -z $filter ]]
+		then
+			break
+		fi
+		PS3="Next: "
+		select ITEM in "Add filter" "Erase existing filters"
+		do
+			case $REPLY in
+				1)
+				break
+				;;
+				2) 
+				cp $1 temp
+				break
+				;;
+				*) 
+				echo "Invalid option - eracing filters"
+				cp $1 temp
+				break
+			esac
+			done
+			break
+		done
+		
+		echo "filter $filter"
+		if [[ $filter = "ts" ]]
+		then
+			echo "Entered"
+			traffic_stat "temp"
+		fi
+		PS3="Choose an option:"
+	;;
+	2) 
+	;;
+	3) exit 0 ;;
+	*) echo "Invalid option"
+	esac
+	done
+fi
