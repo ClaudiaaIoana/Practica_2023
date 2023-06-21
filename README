@@ -1,2 +1,7 @@
 19.06.2023 - instalarea masinii virtuale si configurarea sa pentru conectarea in retea si optiunea de drag and drop 
             -o scurta testate a comenzilor din enunt (tcpdump, tshark)
+20.06.2023 - am urmarit urmatoarele tutoriale: https://www.youtube.com/watch?v=xXte5RplzBc , https://www.youtube.com/watch?v=8368SMYzXcI
+            -am instalat si testat Suricata pentru a observa ce capabilitati are 
+            -am gasit un repository de test pentru diferite  alerte pentru Suricata
+            -am testat comenzile tcpdump si tshark si observat formatele lor de afisare
+            
