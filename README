@@ -4,4 +4,7 @@
             -am instalat si testat Suricata pentru a observa ce capabilitati are 
             -am gasit un repository de test pentru diferite  alerte pentru Suricata
             -am testat comenzile tcpdump si tshark si observat formatele lor de afisare
+21.06.2023 - schitarea unui flow pentru partea Out of line a aplicatiei
+            - implementarea meniului
+            - implementarea unei functii pentru statisticile de trafic 
             
