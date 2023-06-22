@@ -2,17 +2,49 @@
 
 traffic_stat()
 {
-	num_packets=`sudo tshark -r $1 | wc -l 2> /dev/null`
-	time=`sudo tshark -r $1 | tail -n 1 | tr -s " " | cut -f3 -d" " 2> /dev/null`
+	num_packets=`sudo tshark -r $1 2> /dev/null | wc -l` 
+	time=`sudo tshark -r $1 2> /dev/null | tail -n 1 | tr -s " " | cut -f3 -d" "`
 	total_size=$(sudo tshark -r $1 -T fields -e frame.len 2> /dev/null | awk '{s+=$1} END {print s}')
 	echo "$total_size"
 	
-	vol_packets=$(echo "scale=2; $num_packets / $time" | bc -l)
+	vol_packets=$(echo "scale=2; $num_packets / $time" | bc -l || echo "error: time=0")
 	echo "Packets/sec = $vol_packets"
 	
-	vol_bytes=$(echo "scale=2; $total_size / $time" | bc -l)
+	vol_bytes=$(echo "scale=2; $total_size / $time" | bc -l || echo "error: time=0")
 	echo "Bytes/sec = $vol_bytes"
 	
+	src_ips=`sudo tshark -r $1 -T fields -e ip.src -e ipv6.src 2> /dev/null | sort | uniq | wc -l`
+	dest_ips=`sudo tshark -r $1 -T fields -e ip.dst -e ipv6.dst  2> /dev/null | sort | uniq | wc -l`
+	
+	echo "Nr. source ip = $src_ips"
+	echo "Nr. destination ip = $dest_ips"
+	
+	src_ports=`sudo tshark -r $1 -T fields -e ip.src -e ipv6.src -e tcp.srcport -e udp.srcport 2> /dev/null | sort | uniq | wc -l`
+	dest_ports=`sudo tshark -r $1 -T fields -e ip.dst -e ipv6.dst -e tcp.srcport -e udp.srcport 2> /dev/null | sort | uniq | wc -l`
+	
+	echo "Nr. source ports = $src_ports"
+	echo "Nr. destination ports = $dest_ports"
+}
+
+ip_source()
+{
+	read -p "Introduce ip: " ip
+	sudo tshark -r $1 -Y "ip.src == $ip" -w $1 2> /dev/null || sudo tshark -r $1 -Y "ipv6.src == $ip" -w $1 2> /dev/null
+	sudo tshark -r $1 2> /dev/null | egrep "$ip → "
+}
+
+ip_destination()
+{
+	read -p "Introduce ip: " ip
+	sudo tshark -r $1 -Y "ip.dst == $ip" -w $1 2> /dev/null || sudo tshark -r $1 -Y "ipv6.dst == $ip" -w $1 2> /dev/null
+	sudo tshark -r $1 2> /dev/null | egrep "→ $ip"
+}
+
+protocol()
+{
+	read -p "Introduce protocol: " prot
+	sudo tshark -r $1 -Y "$prot" -w $1 2> /dev/null
+	sudo tshark -r $1
 }
 
 
@@ -21,7 +53,7 @@ then
 	echo "IN LINE"
 else
 	echo "OUT OF LINE file: $1"
-	touch temp
+	cp $1 temp
 	PS3="Choose an option:"
 	select ITEM in "Statistics" "Alerts" "Exit"
 	do
@@ -56,12 +88,27 @@ else
 			break
 		done
 		
-		echo "filter $filter"
-		if [[ $filter = "ts" ]]
-		then
-			echo "Entered"
+		case $filter in
+			ts)
 			traffic_stat "temp"
-		fi
+			;;
+			ips) 
+			ip_source "temp"
+			;;
+			ipd)
+			ip_destination "temp"
+			;;
+			prot)
+			protocol "temp"
+			;;
+			pck)
+			sudo tshark -r temp -x
+			;;
+			*) 
+			echo "Invalid option - eracing filters"
+			cp $1 temp
+			break
+		esac
 		PS3="Choose an option:"
 	;;
 	2) 
