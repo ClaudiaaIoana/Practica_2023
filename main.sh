@@ -64,30 +64,39 @@ word_alert()
 	echo "----------------------------"
 }
 
+evidence()
+{
+	echo "$1 $2" >> levels
+
+}
+
 online_ip_source()
 {
 	#sudo pkill -SIGTERM tshark
 	read -p "Introduce ip: " ip
-	mkfifo filtering$1
+	touch filtering$1
 	let pv=$1-1
-	#sudo tshark -r filtering$pv -l -Y "ip.src == $ip" -w filtering$1 2> /dev/null & || sudo tshark -r filtering$pv -l -Y "ipv6.src == $ip" -w filtering$! 2> /dev/null &
-	(sudo tshark -r filtering$pv -l -Y "ip.src == $ip" -w filtering$1 2>/dev/null & disown) || (sudo tshark -r filtering$pv -l -Y "ipv6.src == $ip" -w filtering$! 2>/dev/null & disown)
-
+	(sudo tshark -Y "ip.src == $ip" -r <(tail -f filtering$pv) -w filtering$1
+ 2>/dev/null & disown) || (sudo tshark -Y "ipv6.src == $ip"-r <(tail -f filtering$pv) -w filtering$1 2>/dev/null & disown)
+	pid=$!
+	evidence $1 $pid
 }
+
 
 
 if [[ $# -eq 0 ]]
 then
 	echo "IN LINE"
-	mkfifo filtering0
-	sudo tshark -i ens33 -w filtering0 &
+	touch filtering0
+	touch levels
+	sudo tcpdump -i ens33 -w filtering0 & 2> /dev/null
 	
 	PS3="Choose an option:"
 	select ITEM in "Statistics" "Alerts" "Exit"
 	do
 	case $REPLY in
 	1)
-		let nr=0
+		let nr=1
 		while true 
 		do
 		
@@ -102,16 +111,15 @@ then
 		do
 			case $REPLY in
 				1)
-				let nr=nr+1
 				break
 				;;
 				2) 
-				let nr=0
+				let nr=1
 				break
 				;;
 				*) 
 				echo "Invalid option - eracing filters"
-				let nr=0
+				let nr=1
 				break
 			esac
 			done
@@ -121,7 +129,8 @@ then
 			
 			;;
 			ips) 
-			online_ip_source
+			online_ip_source $nr
+			let nr=nr+1
 			;;
 			ipd)
 			
