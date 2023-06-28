@@ -57,6 +57,32 @@ ip_destination()
 	echo "----------------------------"
 }
 
+port_source()
+{
+	echo "----------------------------"
+	
+	let lvl=$1-1
+	touch filtering$1
+	
+	read -p "Source port: " pr
+	sudo tshark -r filtering$lvl -Y "tcp.srcport == $pr or udp.srcport == $pr" -w filtering$1 2> /dev/null
+	sudo tshark -r filtering$1 2> /dev/null | egrep "$ip → "
+	echo "----------------------------"
+}
+
+port_destination()
+{
+	echo "----------------------------"
+	
+	let lvl=$1-1
+	touch filtering$1
+	
+	read -p "Source port: " pr
+	sudo tshark -r filtering$lvl -Y "tcp.dstort == $pr or udp.dstport == $pr" -w filtering$1 2> /dev/null
+	sudo tshark -r filtering$1 2> /dev/null | egrep "$ip → "
+	echo "----------------------------"
+}
+
 protocol()
 {
 	echo "----------------------------"
@@ -75,13 +101,14 @@ interaction()
 	let lvl=$1-1
 	touch filtering$1
 	
-	read -p "Introduce ip source: " ip
-	sudo tshark -r filtering$lvl -Y "ip.dst == $ip" -w filtering$1 2> /dev/null || sudo tshark -r filtering$lvl -Y "ipv6.dst == $ip" -w filtering$1 2> /dev/null
+	read -p "Introduce ip1: " ip1
+	read -p "Introduce ip2: " ip2
+	sudo tshark -r filtering$lvl -Y "ip.dst == $ip1 or ips.rc=$ip1" -w filtering$1 2> /dev/null || sudo tshark -r filtering$lvl -Y "ipv6.dst == $ip1 or ipv6.src=$ip1" -w filtering$1 2> /dev/null
 	
-	read -p "Introduce ip destination: " ip
-	sudo tshark -r filtering$1 -Y "ip.dst == $ip" -w filtering$1 2> /dev/null || sudo tshark -r filtering$1 -Y "ipv6.dst == $ip" -w filtering$1 2> /dev/null
+	sudo tshark -r filtering$lvl -Y "ip.dst == $ip2 or ips.rc=$ip2" -w filtering$1 2> /dev/null || sudo tshark -r filtering$lvl -Y "ipv6.dst == $ip2 or ipv6.src=$ip2" -w filtering$1 2> /dev/null
 	
-	tshark -r filtering$1
+	
+	tshark -r filtering$1 | sort -h
 	
 }
 
@@ -96,19 +123,32 @@ word_alert()
 
 online_filtering()
 {
-	echo $1 $2
-	if [[ -n $(ps $2 | egrep -o $2) && -n $2 ]]
+	if [[ -n $2 ]]
 	then
-	sudo kill -9 $2
+		if [[ -n $(ps $2 | egrep -o $2) ]]
+		then
+			echo "killing the prev procces"
+			sudo kill -9 $2
+		fi
 	fi
+	
 	filt=""
+	
 	while read -r line
 	do
-	  filt+="and $line "
+	  	filt+="and $line "
 	done <$1
+	
 	filt=`echo $filt | sed "s/^and//"`
-	echo "$filt"
-	sudo tshark -i ens33 -f "$filt" -w online_filtering 2> /dev/null &
+	
+	tshark -qQ -i ens33 -f "$filt" -w online_fcaptures &
+	sleep 5
+}
+
+online_word_alert()
+{
+	read -p "Introduce suspect word: " word
+	sudo tshark -i ens33 -f "frame contains \"$word\"" -w $1 2> /dev/null
 }
 
 
@@ -121,9 +161,9 @@ then
 	do
 	case $REPLY in
 	1)
-		touch online_filtering
+		touch online_fcaptures
 		touch filters
-		chmod 666 online_filtering
+		chmod 666 online_fcaptures
 		let nr=1
 		filters=""
 		
@@ -154,7 +194,9 @@ then
 				
 				while [[ $nr -gt $new_nr  ]]
 				do
-					head -n -1 filters > filters
+					cat filters
+					aux=`head -n -1 filters`
+					echo $aux > filters
 					let nr=nr-1
 				done
 				fi
@@ -186,14 +228,26 @@ then
 			pid=$!
 			let nr=nr+1
 			;;
+			prs)
+			read -p "Introduce port: " pr
+			echo "tcp.srcport == $pr or udp.srcport == $pr" >> filters
+			online_filtering "filters" $pid
+			pid=$!
+			let nr=nr+1
+			;;
+			prd)
+			read -p "Introduce port: " pr
+			echo "tcp.dstport == $pr or udp.dstport == $pr" >> filters
+			online_filtering "filters" $pid
+			pid=$!
+			let nr=nr+1
+			;;
 			prot)
-			
-			;;
-			pck)
-			
-			;;
-			dsp)
-			sudo tshark -r filtering$nr -l -F pcapng
+			read -p "Introduce protocol: " prot
+			echo "$prot" >> filters
+			online_filtering "filters" $pid
+			pid=$!
+			let nr=nr+1
 			;;
 			*) 
 			echo "Invalid option"
@@ -201,7 +255,7 @@ then
 		esac
 		
 		done
-		rm online_filtering
+		#rm online_filtering
 		rm filters
 		PS3="Choose an option:"
 	;;
@@ -217,7 +271,7 @@ then
 		
 		case $rule in
 			wd)
-			word_alert "temp" "alerts"
+			online_word_alert "online_alerts"
 			;;
 			*) 
 			echo "Invalid option"
@@ -234,13 +288,14 @@ then
 	
 else
 	echo "OUT OF LINE file: $1"
-	cp $1 filtering0
+	
 	let nr=1
 	PS3="Choose an option:"
 	select ITEM in "Statistics" "Alerts" "Exit"
 	do
 	case $REPLY in
 	1)
+		cp $1 filtering0
 		while true 
 		do
 		
@@ -314,6 +369,7 @@ else
 		PS3="Choose an option:"
 	;;
 	2) 
+		cp $1 filtering0
 		while true 
 		do
 		
