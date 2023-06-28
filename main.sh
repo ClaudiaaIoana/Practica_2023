@@ -94,31 +94,44 @@ word_alert()
 	echo "----------------------------"
 }
 
-evidence()
+online_filtering()
 {
-	echo "$1 $2" >> levels
-
+	echo $1 $2
+	if [[ -n $(ps $2 | egrep -o $2) && -n $2 ]]
+	then
+	sudo kill -9 $2
+	fi
+	filt=""
+	while read -r line
+	do
+	  filt+="and $line "
+	done <$1
+	filt=`echo $filt | sed "s/^and//"`
+	echo "$filt"
+	sudo tshark -i ens33 -f "$filt" -w online_filtering 2> /dev/null &
 }
 
 
 if [[ $# -eq 0 ]]
 then
 	echo "IN LINE"
-	touch filtering0
-	touch levels
-	sudo tcpdump -i ens33 -w filtering0 & 2> /dev/null
 	
 	PS3="Choose an option:"
 	select ITEM in "Statistics" "Alerts" "Exit"
 	do
 	case $REPLY in
 	1)
+		touch online_filtering
+		touch filters
+		chmod 666 online_filtering
 		let nr=1
+		filters=""
+		
 		while true 
 		do
 		
 		read -p "Enter a filter: " filter
-		#echo "$filter"
+		
 		if [[ -z $filter ]]
 		then
 			break
@@ -131,12 +144,26 @@ then
 				break
 				;;
 				2) 
-				let nr=1
+				echo "Current level: $nr"
+				read -p "Introduce desired level: " new_nr
+				if [[ $new_nr -lt 0 ]]
+				then
+					echo $new_nr
+					echo "Invalid level"
+				else
+				
+				while [[ $nr -gt $new_nr  ]]
+				do
+					head -n -1 filters > filters
+					let nr=nr-1
+				done
+				fi
 				break
 				;;
 				*) 
 				echo "Invalid option - eracing filters"
 				let nr=1
+				echo "" > filters
 				break
 			esac
 			done
@@ -146,11 +173,18 @@ then
 			
 			;;
 			ips) 
-			online_ip_source $nr
+			read -p "Introduce ip: " ip
+			echo "src host $ip" >> filters
+			online_filtering "filters" $pid
+			pid=$!
 			let nr=nr+1
 			;;
 			ipd)
-			
+			read -p "Introduce ip: " ip
+			echo "dst host $ip" >> filters
+			online_filtering "filters" $pid
+			pid=$!
+			let nr=nr+1
 			;;
 			prot)
 			
@@ -167,6 +201,8 @@ then
 		esac
 		
 		done
+		rm online_filtering
+		rm filters
 		PS3="Choose an option:"
 	;;
 	2) 
@@ -174,7 +210,6 @@ then
 		do
 		
 		read -p "Enter a rule: " rule
-		#echo "$filter"
 		if [[ -z $rule ]]
 		then
 			break
@@ -231,7 +266,7 @@ else
 					echo "Invalid level"
 				else
 				
-				while [[ $nr -gt $new_nr ]]
+				while [[ $nr -gt $new_nr  ]]
 				do
 					rm filtering$nr 2> /dev/null
 					let nr=nr-1
