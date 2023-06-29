@@ -117,7 +117,19 @@ word_alert()
 	echo "----------------------------"
 	read -p "Introduce suspect word: " word
 	sudo tshark -r $1 -Y "frame contains \"$word\"" -w $2 2> /dev/null
-	sudo tchark -r $2 2> /dev/null
+	
+	if [[ -n $(sudo tshark -r $2 2> /dev/null) ]]
+	then
+		echo "Word alert found !"
+		read -p "Print the packets: y/n " chk
+		if [[ $chk = "y" ]]
+		then
+			sudo tshark -r $2 2> /dev/null
+		fi
+	else
+		echo "No alerts found !"
+	fi
+	
 	echo "----------------------------"
 }
 
@@ -132,6 +144,7 @@ online_filtering()
 		fi
 	fi
 	
+	sed -i '/^$/d' filters
 	filt=""
 	
 	while read -r line
@@ -142,7 +155,7 @@ online_filtering()
 	filt=`echo $filt | sed "s/^and//"`
 	
 	tshark -qQ -i ens33 -f "$filt" -w online_fcaptures &
-	sleep 5
+	sleep 2
 }
 
 online_word_alert()
@@ -188,13 +201,11 @@ then
 				read -p "Introduce desired level: " new_nr
 				if [[ $new_nr -lt 0 ]]
 				then
-					echo $new_nr
 					echo "Invalid level"
 				else
 				
 				while [[ $nr -gt $new_nr  ]]
 				do
-					cat filters
 					aux=`head -n -1 filters`
 					echo $aux > filters
 					let nr=nr-1
@@ -205,7 +216,7 @@ then
 				*) 
 				echo "Invalid option - eracing filters"
 				let nr=1
-				echo "" > filters
+				truncate -s 0 filters
 				break
 			esac
 			done
@@ -255,7 +266,6 @@ then
 		esac
 		
 		done
-		#rm online_filtering
 		rm filters
 		PS3="Choose an option:"
 	;;
@@ -373,8 +383,10 @@ else
 		while true 
 		do
 		
+		echo "" > alerts
+		
 		read -p "Enter a rule: " rule
-		#echo "$filter"
+		
 		if [[ -z $rule ]]
 		then
 			break
@@ -382,7 +394,7 @@ else
 		
 		case $rule in
 			wd)
-			word_alert "temp" "alerts"
+			word_alert "filtering0" "alerts"
 			;;
 			*) 
 			echo "Invalid option"
