@@ -1,16 +1,27 @@
 #!/bin/bash
-cat levels
 while true
 do
-	level=`tail -n 1 levels | cut -f1 -d" "`
-	if [[ $level -ne $ant_level ]]
+	if [[ -f ~/Documents/GitHub/Practica_2023/filters ]]
 	then
-		kill -9 $pid
+	filt=`tail -n 1 ~/Documents/GitHub/Practica_2023/filters`
+	if [[ ! $filt = $ant_filt ]]
+	then
+		if [[ -n $pid ]]
+		then
+			kill -9 $pid
+		fi
+		
+		level=`wc -l ~/Documents/GitHub/Practica_2023/filters | egrep -o "\b[0-9]+\b"`
+		echo "----------------------------------------------------------------"
 		echo "----------------------------------------------------------------"
 		echo "LEVEL $level"
 		echo "----------------------------------------------------------------"
-		tail -f filtering$level | sudo tshark 2> /dev/null &
+		echo "----------------------------------------------------------------"
+		tail -f ~/Documents/GitHub/Practica_2023/online_fcaptures | tshark -r - -l 2> /dev/null &
 		pid=$!
 	fi
-	ant_level=$level
+	ant_filt=$filt
+	else 
+		exit 1
+	fi
 done
