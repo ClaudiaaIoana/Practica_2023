@@ -66,7 +66,7 @@ port_source()
 	
 	read -p "Source port: " pr
 	sudo tshark -r filtering$lvl -Y "tcp.srcport == $pr or udp.srcport == $pr" -w filtering$1 2> /dev/null
-	sudo tshark -r filtering$1 2> /dev/null | egrep "$ip → "
+	sudo tshark -r filtering$1 2> /dev/null 
 	echo "----------------------------"
 }
 
@@ -77,9 +77,9 @@ port_destination()
 	let lvl=$1-1
 	touch filtering$1
 	
-	read -p "Source port: " pr
-	sudo tshark -r filtering$lvl -Y "tcp.dstort == $pr or udp.dstport == $pr" -w filtering$1 2> /dev/null
-	sudo tshark -r filtering$1 2> /dev/null | egrep "$ip → "
+	read -p "Destination port: " pr
+	sudo tshark -r filtering$lvl -Y "tcp.dstport == $pr or udp.dstport == $pr" -w filtering$1 2> /dev/null
+	sudo tshark -r filtering$1 2> /dev/null 
 	echo "----------------------------"
 }
 
@@ -133,6 +133,61 @@ word_alert()
 	echo "----------------------------"
 }
 
+ips_alert()
+{
+	ip_source "1" > $1
+	if [[ $(wc -l $1 | egrep -o "[0-9]+") -gt 2 ]]
+	then
+		echo "IPS alert found !"
+	else
+		echo "No alerts found !"
+	fi
+	
+}
+
+ipd_alert()
+{
+	ip_destination "1" > $1
+	if [[ $(wc -l $1 | egrep -o "[0-9]+") -gt 2 ]]
+	then
+		echo "IPD alert found !"
+	else
+		echo "No alerts found !"
+	fi
+	
+}
+
+ps_alert()
+{
+	port_source "1" > $1
+	if [[ $(wc -l $1 | egrep -o "[0-9]+") -gt 2 ]]
+	then
+		echo "PortS alert found !"
+	else
+		echo "No alerts found !"
+	fi
+}
+
+pd_alert()
+{
+	port_destination "1" > $1
+	if [[ $(wc -l $1 | egrep -o "[0-9]+") -gt 2 ]]
+	then
+		echo "PortS alert found !"
+	else
+		echo "No alerts found !"
+	fi
+}
+
+
+reset_file()
+{
+	rm online_fcaptures
+	touch online_fcaptures
+	chmod 666 online_fcaptures
+}
+
+
 online_filtering()
 {
 	if [[ -n $2 ]]
@@ -141,6 +196,7 @@ online_filtering()
 		then
 			echo "killing the prev procces"
 			sudo kill -9 $2
+			reset_file
 		fi
 	fi
 	
@@ -222,9 +278,9 @@ then
 			done
 		
 		case $filter in
-			ts)
-			
-			;;
+			#ts)
+			#traffic_stat $nr
+			#;;
 			ips) 
 			read -p "Introduce ip: " ip
 			echo "src host $ip" >> filters
@@ -241,14 +297,14 @@ then
 			;;
 			prs)
 			read -p "Introduce port: " pr
-			echo "tcp.srcport == $pr or udp.srcport == $pr" >> filters
+			echo "( tcp src port $pr or udp src port $pr )" >> filters
 			online_filtering "filters" $pid
 			pid=$!
 			let nr=nr+1
 			;;
 			prd)
 			read -p "Introduce port: " pr
-			echo "tcp.dstport == $pr or udp.dstport == $pr" >> filters
+			echo "( tcp dst port $pr or udp dst port $pr )" >> filters
 			online_filtering "filters" $pid
 			pid=$!
 			let nr=nr+1
@@ -267,6 +323,7 @@ then
 		
 		done
 		rm filters
+		rm online_fcaptures
 		PS3="Choose an option:"
 	;;
 	2) 
@@ -300,6 +357,7 @@ else
 	echo "OUT OF LINE file: $1"
 	
 	let nr=1
+	touch alerts
 	PS3="Choose an option:"
 	select ITEM in "Statistics" "Alerts" "Exit"
 	do
@@ -359,6 +417,14 @@ else
 			ip_destination $nr
 			let nr=nr+1
 			;;
+			prs)
+			port_source $nr
+			let nr=nr+1
+			;;
+			prd)
+			port_destination $nr
+			let nr=nr+1
+			;;
 			prot)
 			protocol $nr
 			let nr=nr+1
@@ -395,6 +461,18 @@ else
 		case $rule in
 			wd)
 			word_alert "filtering0" "alerts"
+			;;
+			ips)
+			ips_alert "alerts"
+			;;
+			ipd)
+			ipd_alert "alerts"
+			;;
+			prs)
+			ps_alert "alerts"
+			;;
+			prd)
+			pd_alert "alerts"
 			;;
 			*) 
 			echo "Invalid option"
