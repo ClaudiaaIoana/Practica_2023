@@ -195,7 +195,7 @@ online_filtering()
 		if [[ -n $(ps $2 | egrep -o $2) ]]
 		then
 			echo "killing the prev procces"
-			sudo kill -9 $2
+			sudo kill -9 $2 
 			reset_file
 		fi
 	fi
@@ -210,7 +210,9 @@ online_filtering()
 	
 	filt=`echo $filt | sed "s/^and//"`
 	
-	tshark -qQ -i ens33 -f "$filt" -w online_fcaptures &
+	echo "--- $filt ---"
+	
+	tshark -qQ -i ens33 -f "$filt" -w online_fcaptures & 2> /dev/null
 	sleep 2
 }
 
@@ -297,14 +299,14 @@ then
 			;;
 			prs)
 			read -p "Introduce port: " pr
-			echo "( tcp src port $pr or udp src port $pr )" >> filters
+			echo "(tcp src port $pr or udp src port $pr)" >> filters
 			online_filtering "filters" $pid
 			pid=$!
 			let nr=nr+1
 			;;
 			prd)
 			read -p "Introduce port: " pr
-			echo "( tcp dst port $pr or udp dst port $pr )" >> filters
+			echo "(tcp dst port $pr or udp dst port $pr)" >> filters
 			online_filtering "filters" $pid
 			pid=$!
 			let nr=nr+1
