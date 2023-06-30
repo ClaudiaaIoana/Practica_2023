@@ -8,3 +8,23 @@
             - implementarea meniului
             - implementarea unei functii pentru statisticile de trafic 
             
+22.06.2023 -... - implementarea propriu-zisa a proiectului
+
+Probleme intampinate:   - captarea traficului online
+                        - suprapunerea filtrelor pe nivele
+                        - permisiunile pentru comanda tcpdump 
+                        - verbalizarea intructiunilor ce au interferat cu fluxul meniului
+                        - comprimiterea fisierului online_fcaptures
+
+DESCRIERE FUNCTIONALA:
+            - ONLINE: - se lanseaza executabilul cu sudo
+            - OFFLINE:- se lanseaza normal si se trimite fisierul captura ca parametru 
+            - MENIU: 3 optiuni: Statistics, Alerts, Exit
+            - STATISTICS : - cere numele unui filtru
+                           - interogheaza pentru suprapunerea filtrelor 
+                           - online -> afiseaza in terminal
+                           - offline -> scrie intr-un fisier
+            - ALERTS: - cere numele alertei
+                      - nu pot fi suprapuse
+                      - afiseaza un mesaj sugestiv
+                      - pentru cele de timp word -> afiseaza detaliile pachetelor  
